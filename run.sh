@@ -1,5 +1,5 @@
 export MODEL_NAME="runwayml/stable-diffusion-v1-5"
-export OUTPUT_DIR="outputs/models"
+export OUTPUT_DIR="outputs/models_epic"
 export DATASET_NAME="images/train_epic"
 
 accelerate launch train_text_to_image_lora.py \
@@ -11,7 +11,7 @@ accelerate launch train_text_to_image_lora.py \
   --gradient_checkpointing \
   --mixed_precision="fp16" \
   --max_train_steps=2000 \
-  --learning_rate=1e-05 \
+  --learning_rate=1e-04 \
   --max_grad_norm=1 \
   --lr_scheduler="constant" --lr_warmup_steps=0 \
   --output_dir=$OUTPUT_DIR
