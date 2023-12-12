@@ -55,19 +55,23 @@ def count_frames(path, override=False):
 	return total
 
 try:
-    os.remove("output.mp4")
+    os.remove("output_cheetah.mp4")
 except OSError:
     pass
 
-controlnet = ControlNetModel.from_pretrained("lllyasviel/sd-controlnet-canny", torch_dtype=torch.float16, use_safetensors=True)
-pipe = StableDiffusionControlNetPipeline.from_pretrained(
-    "runwayml/stable-diffusion-v1-5", controlnet=controlnet, torch_dtype=torch.float16, use_safetensors=True
+controlnet = ControlNetModel.from_pretrained("lllyasviel/sd-controlnet-depth", torch_dtype=torch.float16)
+pipeline_controlnet = StableDiffusionControlNetPipeline.from_pretrained(
+    "runwayml/stable-diffusion-v1-5", controlnet=controlnet, torch_dtype=torch.float16
 )
+pipeline_controlnet.scheduler = UniPCMultistepScheduler.from_config(pipeline_controlnet.scheduler.config)
+pipeline_controlnet.enable_model_cpu_offload()
 
-pipe.scheduler = UniPCMultistepScheduler.from_config(pipe.scheduler.config)
-pipe.enable_model_cpu_offload()
+def dummy(images, **kwargs):
+	return images, [False for i in range(len(images))]
 
-vid_path = "input_short.mp4"
+pipeline_controlnet.safety_checker = dummy
+
+vid_path = "cheetah.mp4"
 cap = cv2.VideoCapture(vid_path)
 
 total_num_frames = count_frames(vid_path, override=False)
@@ -75,36 +79,37 @@ total_num_frames = count_frames(vid_path, override=False)
 pbar = tqdm(total=total_num_frames)
 
 # writer = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), 25, (640, 360))
-writer = imageio.get_writer('output.mp4', fps=24)
-num_frames = 1000
+writer = imageio.get_writer('output_cheetah.mp4', fps=24)
+num_frames = 20
 i = 0
 while True:
     # Capture frame-by-frame
     ret, frame = cap.read()
     if not ret or i > num_frames:
         break
-    
+	
     # Display the frame
     image = np.array(frame)
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    image = cv2.resize(image,(512,512))
 
-    low_threshold = 100
-    high_threshold = 200
+    # low_threshold = 100
+    # high_threshold = 200
 
-    image = cv2.Canny(image, low_threshold, high_threshold)
-    image = image[:, :, None]
-    image = np.concatenate([image], axis=2)
-    image = image.reshape((image.shape[0], image.shape[1]))
+    # image = cv2.Canny(image, low_threshold, high_threshold)
+    # image = image[:, :, None]
+    # image = np.concatenate([image], axis=2)
+    # image = image.reshape((image.shape[0], image.shape[1]))
 
-    canny_image = Image.fromarray(image)
     # canny_image = Image.fromarray(image)
+    canny_image = Image.fromarray(image)
 
-    output = pipe(
-        "super epic crazy insane cinmatic", image=canny_image
+    output = pipeline_controlnet(
+        "dramatic lighting cheetah", image=canny_image
     ).images[0]
 
     pil_numpy = np.array(output)
     pil_numpy=cv2.resize(pil_numpy,(640,360))
-    # pil_numpy = cv2.cvtColor(pil_numpy, cv2.COLOR_RGB2BGR)
 
     # print(pil_numpy.shape)
 

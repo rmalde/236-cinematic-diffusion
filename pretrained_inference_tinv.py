@@ -9,11 +9,9 @@ base_model_path = "runwayml/stable-diffusion-v1-5"
 finetuned_model_path = "outputs/models_epic_tinv"
 
 prompts = [
-    "Hiker on a mountain",
-    "Living room with a fireplace",
-    "Camera on a tripod",
-    "Hot air balloon",
     "Cheetah",
+    "Guitar player at a concert",
+    "Jungle temple",
 ]
 
 pipeline_base = StableDiffusionPipeline.from_pretrained(base_model_path, torch_dtype=torch.float16)
@@ -54,5 +52,5 @@ for i, prompt in enumerate(prompts):
 
 # Adjust layout for better spacing
 plt.tight_layout()
-plt.savefig('output_plot.png')
+plt.savefig('output_plot_tinv.png')
 plt.show()
