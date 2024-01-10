@@ -1,5 +1,7 @@
 # Cinematic Frame Generation with Diffusion Models
 
+[Link to Final Paper Report](https://github.com/rmalde/236-cinematic-diffusion/blob/8be8c692888c61e8d16b9cf354c88a01d71f5ea9/CS_236_Final_Project_Report.pdf)
+
 In this project, we evaluated various approaches to finetuning and other strategies to create more "cinematic" images from AI generated images. We will leave the term "cinematic" to be a subjective term, but generally this would translate to more dramatic lighting, grandiose landscapes, and lens flare effects. We evaluated the following strategies:
 1. Base stable diffusion model
 2. LoRA Finetuned model
